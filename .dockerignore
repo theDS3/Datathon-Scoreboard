@@ -1,0 +1,9 @@
+.gitignore
+/custom
+/ds3
+/zip
+/csv
+.env
+
+README.md
+LICENSE
