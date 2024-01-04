@@ -3,6 +3,7 @@ from zipfile import ZipFile
 from kaggle.api.kaggle_api_extended import KaggleApi
 from pymongo import MongoClient
 from datetime import datetime
+from pytz import timezone
 
 import os
 import pandas as pd
@@ -103,7 +104,7 @@ def update_leaderboard(request: Request):
 
         db.leaderboard.insert_one(
             {
-                "timestamp": datetime.now().strftime('%b %d %Y %I:%M %p'),
+                "timestamp": datetime.now(timezone('Canada/Eastern')).strftime('%b %d %Y %I:%M %p'),
                 "data": process_competitions(request.numOfTeams)
             }
         )
