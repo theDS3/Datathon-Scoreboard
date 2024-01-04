@@ -80,7 +80,7 @@ def process_competitions(size: int) -> list:
 
     return data
 
-@app.get("/" , status_code=status.HTTP_201_CREATED)
+@app.post("/" , status_code=status.HTTP_201_CREATED)
 def update_leaderboard(request: Request):
     """ Updates Leaderboard with new scores
 
