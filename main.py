@@ -109,14 +109,14 @@ def process_competitions(size: int, maxAttempts: int, coll: Collection) -> list:
     if (coll.count_documents({}) > 0):
         prev_standings = coll.find_one(sort=[("timestamp", -1)])
         for i in range(len(curr_standings)):
-            team_name = curr_standings[i]["Team"]
-            prev_standing = next((team for team in prev_standings["data"] if team["Team"] == team_name), None)
+            team_name = curr_standings[i]["team"]
+            prev_standing = next((team for team in prev_standings["data"] if team["team"] == team_name), None)
             if prev_standing:
                 delta = prev_standings["data"].index(prev_standing) - i
                 if (delta < 0):
-                    curr_standings[i]["Delta"] = str(delta)
+                    curr_standings[i]["delta"] = str(delta)
                 elif (delta > 0):
-                    curr_standings[i]["Delta"] = "+" + str(delta)
+                    curr_standings[i]["delta"] = "+" + str(delta)
 
     return curr_standings
 
