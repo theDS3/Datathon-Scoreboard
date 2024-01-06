@@ -103,7 +103,7 @@ def process_competitions(size: int, maxAttempts: int, coll: Collection) -> list:
     # Format to array
     curr_standings = []
     for _, row in df.head(size).iterrows():
-        curr_standings.append({"Team": row["Name"], "Score": row["Score"], "Attempts Remaining": (maxAttempts - row["Attempts"]), "Delta": "-"})
+        curr_standings.append({"team": row["Name"], "score": row["Score"], "attemptsLeft": (maxAttempts - row["Attempts"]), "delta": "-"})
 
     # compute delta if feasible
     if (coll.count_documents({}) > 0):
