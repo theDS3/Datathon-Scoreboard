@@ -8,6 +8,7 @@ from pytz import timezone
 
 import os
 import pandas as pd
+import certifi
 
 from fastapi import FastAPI, status, HTTPException
 from pydantic import BaseModel
@@ -97,7 +98,7 @@ def process_competitions(size: int, maxAttempts: int, coll: Collection) -> list:
     df["Score"] = score_metric(df.filter(score_filter))
 
     # sort 
-    df.sort_values(by = ['Score'], inplace = True, ascending = False)
+    df.sort_values(by = ["Score", "Attempts"], inplace = True, ascending = [False, True])
     df.reset_index(inplace = True, drop = True)
 
     # Format to array
@@ -135,7 +136,7 @@ def update_leaderboard(request: Request):
     """
 
     # Initialize and authenticate
-    client = MongoClient(os.getenv('MONGO_URI'))
+    client = MongoClient(os.getenv('MONGO_URI'), tlsCAFile=certifi.where())
     db = client.dev
 
     if request.competitions:
