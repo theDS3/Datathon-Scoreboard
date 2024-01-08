@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   leaderboard:
-    image: awhooogha/ds3-leaderboard:latest
+    image: devds3/leaderboard
     build:
       context: '.'
     ports:

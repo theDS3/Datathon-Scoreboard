@@ -5,13 +5,10 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Copy the requirements file to the working directory
-COPY ./requirements.txt /code/requirements.txt
+COPY * /app
 
 # Install the Python dependencies
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
-
-# Copy the application code to the working directory
-COPY ./main.py /app/
+RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 
 EXPOSE 8000
 

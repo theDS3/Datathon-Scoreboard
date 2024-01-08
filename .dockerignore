@@ -1,9 +1,21 @@
-.gitignore
+# Folders
+/csv
 /custom
 /ds3
 /zip
-/csv
-.env
 
-README.md
+# Environment Variables
+.env
+.env.example
+
+# Ignore Files
+.dockerignore
+.gitignore
+
+# Docker Related Files
+docker-compose.yml
+Dockerfile
+
+# Documentations
 LICENSE
+README.md
