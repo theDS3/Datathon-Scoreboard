@@ -84,7 +84,7 @@ def process_competitions(size: int, maxAttempts: int, coll: Collection) -> list:
             df_comp = df_comp.filter(["TeamName", "Score", "SubmissionCount"])
             df_comp.columns = ["Name", "Score-" + item, "Count-" + item]
             df = df_comp if df.empty  else pd.merge(df, df_comp, on = ["Name"], how = "outer")
-    
+
     # create filters
     score_filter = []
     attempt_filter = []
@@ -97,7 +97,7 @@ def process_competitions(size: int, maxAttempts: int, coll: Collection) -> list:
     df["Attempts"] = df.filter(attempt_filter).sum(axis = 1, skipna = True)
     df["Score"] = score_metric(df.filter(score_filter))
 
-    # sort 
+    # sort
     df.sort_values(by = ["Score", "Attempts"], inplace = True, ascending = [False, True])
     df.reset_index(inplace = True, drop = True)
 
