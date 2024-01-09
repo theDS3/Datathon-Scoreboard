@@ -61,8 +61,8 @@ def score_metric(df: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: Contains the combined score
     """
 
-    # placeholder, will be updated with something more reasonable
-    return df.sum(axis = 1, skipna = True).round(3)
+    # Assumes all datasets are using the balanced_accuracy metric
+    return df.sum(axis = 1, skipna = True)*100
 
 def process_competitions(size: int, maxAttempts: int, coll: Collection) -> list:
     """ Process the leaderboard data from multiple competitions
@@ -100,6 +100,9 @@ def process_competitions(size: int, maxAttempts: int, coll: Collection) -> list:
     # sort
     df.sort_values(by = ["Score", "Attempts"], inplace = True, ascending = [False, True])
     df.reset_index(inplace = True, drop = True)
+
+    # round
+    df["Score"] = df["Score"].round(3)
 
     # Format to array
     curr_standings = []
