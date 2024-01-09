@@ -1,8 +1,9 @@
 # Folders
 /csv
 /custom
-/ds3
+/ds3-env
 /zip
+/.vscode
 
 # Environment Variables
 .env
@@ -19,3 +20,9 @@ Dockerfile
 # Documentations
 LICENSE
 README.md
+
+# Git Related
+**/.git
+
+# Python Related
+**/*.pyc

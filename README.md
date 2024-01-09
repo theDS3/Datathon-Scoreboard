@@ -6,12 +6,12 @@ Creates a server to update DS3 Datathon Leaderboard using Kaggle Leaderboard
 
 1. Create a Virtual Environment using `virtualenv`:
     ```bash
-    virtualenv env
+    virtualenv ds3-env
     ```
 
 2. Start the Virtual Environment:
     ```bash
-    source env/bin/activate
+    source ds3-env/bin/activate
     ```
 
 3. Copy the `.env.example` to `.env`:
@@ -29,7 +29,7 @@ Creates a server to update DS3 Datathon Leaderboard using Kaggle Leaderboard
 
     ### **VSCODE**
 
-    **Requirement**: VS Code Python Interpreter be set to Virtual Environment `env`: Read [here](https://code.visualstudio.com/docs/python/environments#_working-with-python-interpreters)  for more info
+    **Requirement**: VS Code Python Interpreter be set to Virtual Environment `ds3-env`: Read [here](https://code.visualstudio.com/docs/python/environments#_working-with-python-interpreters)  for more info
 
     1. Open the Command Palette using `Ctrl+Shift+P` or `Cmd+Shift+P`.
     2. Search for `Tasks: Run Task` and select it.
@@ -41,17 +41,6 @@ Creates a server to update DS3 Datathon Leaderboard using Kaggle Leaderboard
 
 ### **NON-VSCODE**
 
-1. Open the Command Palette using `Ctrl+Shift+P` or `Cmd+Shift+P`.
-2. Search for `Tasks: Run Task` and select it.
-3. Search for `Dev Server` and select it.
-4. VS Code will start the Dev Server automatically.
-
-### **VSCODE**
-
-
-**Requirement**: VS Code Python Interpreter be set to Virtual Environment `env`: Read [here](https://code.visualstudio.com/docs/python/environments#_working-with-python-interpreters)  for more info
-
-
 1. Export the Environmental Variables to the shell:
     ```bash
     export $(cat .env | xargs)
@@ -62,7 +51,22 @@ Creates a server to update DS3 Datathon Leaderboard using Kaggle Leaderboard
     env
     ```
 
-3. Run the Dev Server:
+3. Start the Virtual Environment:
+    ```bash
+    source ds3-env/bin/activate
+    ```
+
+4. Run the Dev Server:
     ```bash
     uvicorn main:app --reload --env-file .env
     ```
+
+### **VSCODE**
+
+**Requirement**: VS Code Python Interpreter be set to Virtual Environment `ds3-env`: Read [here](https://code.visualstudio.com/docs/python/environments#_working-with-python-interpreters)  for more info
+
+
+1. Open the Command Palette using `Ctrl+Shift+P` or `Cmd+Shift+P`.
+2. Search for `Tasks: Run Task` and select it.
+3. Search for `Dev Server` and select it.
+4. VS Code will start the Dev Server automatically.
