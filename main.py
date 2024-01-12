@@ -143,7 +143,7 @@ def update_leaderboard(request: Request):
 
     # Initialize and authenticate
     client = MongoClient(os.getenv('MONGO_URI'), tlsCAFile=certifi.where())
-    db = client.dev
+    db = client[os.getenv("MONGO_DB")]
 
     if request.competitions:
         download_competitions(request.competitions)
