@@ -7,6 +7,7 @@ from datetime import datetime
 from pytz import timezone
 
 import os
+from shutil import rmtree
 import pandas as pd
 import certifi
 
@@ -16,7 +17,6 @@ from pydantic import BaseModel
 class Request(BaseModel):
     competitions: list[str]
     numOfTeams: int = 40
-    maxAttempts: int = 210
 
 app = FastAPI()
 
@@ -64,12 +64,11 @@ def score_metric(df: pd.DataFrame) -> pd.DataFrame:
     # Assumes all datasets are using the balanced_accuracy metric
     return df.sum(axis = 1, skipna = True)*100
 
-def process_competitions(size: int, maxAttempts: int, coll: Collection) -> list:
+def process_competitions(size: int, coll: Collection) -> list:
     """ Process the leaderboard data from multiple competitions
 
     Args:
         size (int): Maximum entries for the leaderboard. Defaults according to Request.
-        maxAttempts (int): Maximum number of attempts over all competitions. Defaults according to Request.
         coll (Collection):  Collection that contains the leaderboard snapshots.
 
     Returns:
@@ -92,6 +91,10 @@ def process_competitions(size: int, maxAttempts: int, coll: Collection) -> list:
         if item.endswith(".csv"):
             score_filter.append("Score-" + item)
             attempt_filter.append("Count-" + item)
+    
+    # remove downloaded files
+    rmtree(ZIP_PATH)
+    rmtree(CSV_PATH)
 
     # aggregate attempts and compute score
     df["Attempts"] = df.filter(attempt_filter).sum(axis = 1, skipna = True)
@@ -102,19 +105,19 @@ def process_competitions(size: int, maxAttempts: int, coll: Collection) -> list:
     df.reset_index(inplace = True, drop = True)
 
     # round
-    df["Score"] = df["Score"].round(3)
+    df["Score"] = df["Score"].round(5)
 
     # Format to array
     curr_standings = []
     for _, row in df.head(size).iterrows():
-        curr_standings.append({"team": row["Name"], "score": row["Score"], "attemptsLeft": (maxAttempts - row["Attempts"]), "delta": "-"})
+        curr_standings.append({"name": row["Name"], "score": row["Score"], "numAttempts": (row["Attempts"]), "delta": "-"})
 
     # compute delta if feasible
     if (coll.count_documents({}) > 0):
         prev_standings = coll.find_one(sort=[("timestamp", -1)])
         for i in range(len(curr_standings)):
-            team_name = curr_standings[i]["team"]
-            prev_standing = next((team for team in prev_standings["data"] if team["team"] == team_name), None)
+            team_name = curr_standings[i]["name"]
+            prev_standing = next((team for team in prev_standings["data"] if team["name"] == team_name), None)
             if prev_standing:
                 delta = prev_standings["data"].index(prev_standing) - i
                 if (delta < 0):
@@ -148,8 +151,9 @@ def update_leaderboard(request: Request):
 
         db.leaderboard.insert_one(
             {
+                "type": "public",
                 "timestamp": datetime.now(timezone('Canada/Eastern')).strftime('%b %d %Y %I:%M %p'),
-                "data": process_competitions(size = request.numOfTeams, maxAttempts = request.maxAttempts, coll = db.leaderboard)
+                "data": process_competitions(size = request.numOfTeams, coll = db.leaderboard)
             }
         )
 
