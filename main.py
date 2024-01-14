@@ -1,4 +1,3 @@
-
 from zipfile import ZipFile
 from kaggle.api.kaggle_api_extended import KaggleApi
 from pymongo import MongoClient
@@ -40,7 +39,12 @@ def download_competitions(competitions: list[str]):
 
 def extract_competitions():
     """ Extracts leaderboard information into *.csv from the *.zip files
+
+    Returns:
+        list(str): File Path for all csv's
     """
+
+    csv_files = []
 
     for item in os.listdir(ZIP_PATH):
         if item.endswith(".zip"):
@@ -50,24 +54,46 @@ def extract_competitions():
                 source_path = zf.namelist()[0]
                 zf.getinfo(source_path).filename = target_path
                 zf.extract(source_path)
+                csv_files.append(target_path)
 
-def score_metric(df: pd.DataFrame) -> pd.DataFrame:
+    return csv_files
+
+def process_csv(csv_files: list[str]) -> pd.DataFrame:
+    """ Extract leaderboard information from *.csv
+
+    Args:
+        csv_files (list[str]): File Path for all csv's
+
+    Returns:
+        pd.DataFrame: Kaggle API Data with Scores and Counts for each Team from all competitions
+    """
+
+    df = pd.DataFrame()
+    for csv_file in csv_files:
+        df_comp = pd.read_csv(csv_file).filter(["TeamName", "Score", "SubmissionCount"])
+        df_comp.columns = ["Name", f"Score{csv_file[16:-4]}", f"Count{csv_file[16:-4]}"]
+        df = df_comp if df.empty  else pd.merge(df, df_comp, on = ["Name"], how = "outer")
+
+    return df
+
+def score_metric(df: pd.Series) -> pd.Series:
     """ Combines individual competition scores
 
     Args:
-        df (pd.DataFrame): DataFrame containing individual competition scores
+        df (pd.Series): DataFrame containing individual competition scores
 
     Returns:
-        pd.DataFrame: Contains the combined score
+        pd.Series: Contains the combined score
     """
 
     # Assumes all datasets are using the balanced_accuracy metric
-    return df.sum(axis = 1, skipna = True)*100
+    return df.sum(axis = 1, skipna = True) * 100
 
-def process_competitions(size: int, coll: Collection) -> list:
+def process_competitions(df: pd.DataFrame, size: int, coll: Collection) -> list:
     """ Process the leaderboard data from multiple competitions
 
     Args:
+        df (pd.DataFrame): Kaggle API Data with Scores and Counts for each Team from all competitions.
         size (int): Maximum entries for the leaderboard. Defaults according to Request.
         coll (Collection):  Collection that contains the leaderboard snapshots.
 
@@ -75,26 +101,9 @@ def process_competitions(size: int, coll: Collection) -> list:
         list: Contains the name of the team and cumulative score
     """
 
-    df = pd.DataFrame()
-    for item in os.listdir(CSV_PATH):
-        if item.endswith(".csv"):
-            file_path = os.path.join(CSV_PATH, item)
-            df_comp = pd.read_csv(file_path)
-            df_comp = df_comp.filter(["TeamName", "Score", "SubmissionCount"])
-            df_comp.columns = ["Name", "Score-" + item, "Count-" + item]
-            df = df_comp if df.empty  else pd.merge(df, df_comp, on = ["Name"], how = "outer")
-
     # create filters
-    score_filter = []
-    attempt_filter = []
-    for item in os.listdir(CSV_PATH):
-        if item.endswith(".csv"):
-            score_filter.append("Score-" + item)
-            attempt_filter.append("Count-" + item)
-    
-    # remove downloaded files
-    rmtree(ZIP_PATH)
-    rmtree(CSV_PATH)
+    score_filter = list(filter(lambda x: x.startswith('Score-'), list(df.columns)))
+    attempt_filter = list(filter(lambda x: x.startswith('Count-'), list(df.columns)))
 
     # aggregate attempts and compute score
     df["Attempts"] = df.filter(attempt_filter).sum(axis = 1, skipna = True)
@@ -105,7 +114,7 @@ def process_competitions(size: int, coll: Collection) -> list:
     df.reset_index(inplace = True, drop = True)
 
     # round
-    df["Score"] = df["Score"].round(5)
+    df["Score"] = df['Score'].astype(float).round(5)
 
     # Format to array
     curr_standings = []
@@ -147,13 +156,21 @@ def update_leaderboard(request: Request):
 
     if request.competitions:
         download_competitions(request.competitions)
-        extract_competitions()
+        csv_files = extract_competitions()
+        df = process_csv(csv_files)
+
+        # remove downloaded files
+        rmtree(ZIP_PATH)
+        rmtree(CSV_PATH)
+
+        # Checks if columns in DataFrame is NaN
+        data = None if df.isnull().values.all() else process_competitions(df, size = request.numOfTeams, coll = db.leaderboard)
 
         db.leaderboard.insert_one(
             {
                 "type": "public",
                 "timestamp": datetime.now(timezone('Canada/Eastern')).strftime('%b %d %Y %I:%M:%S %p'),
-                "data": process_competitions(size = request.numOfTeams, coll = db.leaderboard)
+                "data": data
             }
         )
 
