@@ -152,7 +152,7 @@ def update_leaderboard(request: Request):
         db.leaderboard.insert_one(
             {
                 "type": "public",
-                "timestamp": datetime.now(timezone('Canada/Eastern')).strftime('%b %d %Y %I:%M %p'),
+                "timestamp": datetime.now(timezone('Canada/Eastern')).strftime('%b %d %Y %I:%M:%S %p'),
                 "data": process_competitions(size = request.numOfTeams, coll = db.leaderboard)
             }
         )
