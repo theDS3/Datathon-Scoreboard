@@ -91,7 +91,7 @@ def process_competitions(size: int, coll: Collection) -> list:
         if item.endswith(".csv"):
             score_filter.append("Score-" + item)
             attempt_filter.append("Count-" + item)
-    
+
     # remove downloaded files
     rmtree(ZIP_PATH)
     rmtree(CSV_PATH)
@@ -105,7 +105,7 @@ def process_competitions(size: int, coll: Collection) -> list:
     df.reset_index(inplace = True, drop = True)
 
     # round
-    df["Score"] = df["Score"].round(5)
+    df["Score"] = df['Score'].astype(float).round(5)
 
     # Format to array
     curr_standings = []
