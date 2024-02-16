@@ -70,3 +70,55 @@ Creates a server to update DS3 Datathon Leaderboard using Kaggle Leaderboard
 2. Search for `Tasks: Run Task` and select it.
 3. Search for `Dev Server` and select it.
 4. VS Code will start the Dev Server automatically.
+
+
+## Update Non-Public Leaderboard
+
+### For Private Leaderboard
+
+To make updates to the private leaderboard it requires the following:
+
+1. Create a Folder called `private` to contain multiple CSV
+2. Download from Kaggle the Private Leaderboard CSV's and place it here
+3. Each of these CSV require the following headers:
+
+    ```txt
+    Rank,TeamId,TeamName,LastSubmissionDate,Score,SubmissionCount,TeamMemberUserNames
+    ```
+
+Use the following command to run the commands:
+
+```bash
+export $(cat .env | xargs)
+python private.py
+```
+### For Final Leaderboard
+
+To make updates to the final leaderboard it requires the following:
+
+1. Create a Folder called `private` to contain multiple CSV
+2. Download from Kaggle the Private Leaderboard CSV's and place it here
+3. Each of these CSV require the following headers:
+
+    ```txt
+    Rank,TeamId,TeamName,LastSubmissionDate,Score,SubmissionCount,TeamMemberUserNames
+    ```
+
+4. Create a Folder called `bonus` to contain multiple CSV
+5. Load each CSV containing the attendance of participants at in-person events
+6. Each of these CSV require the following headers:
+
+    ```txt
+    Email
+    ```
+
+7. Create a file called `mapping.csv` with the following headers: `Email,Team,Team Size`
+
+    - It is a mapping that contains all participants and the teams they belong to
+
+Use the following command to run the commands:
+
+```bash
+export $(cat .env | xargs)
+python final.py
+```
