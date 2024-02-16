@@ -1,13 +1,12 @@
 # Folders
-/csv
-/custom
-/ds3-env
-/zip
-/.vscode
+csv/
+zip/
+.vscode/
 
 # Environment Variables
 .env
 .env.example
+.env.staging
 
 # Ignore Files
 .dockerignore
@@ -26,3 +25,12 @@ README.md
 
 # Python Related
 **/*.pyc
+wheels/
+__pycache__/
+
+# Pipenv Related
+Pipfile
+Pipfile.lock
+
+# Other Files
+.markdownlint.json
