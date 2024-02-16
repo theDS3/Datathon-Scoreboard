@@ -5,12 +5,12 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Copy the requirements file to the working directory
-COPY * /app
+COPY main.py requirements.txt /app/
 
 # Install the Python dependencies
-RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
 EXPOSE 8000
 
 # Run the FastAPI application using uvicorn server
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0"]
+CMD uvicorn main:app --host 0.0.0.0 --port 8000
