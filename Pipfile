@@ -11,11 +11,12 @@ pandas = "*"
 pymongo = "*"
 
 [dev-packages]
+tabulate = "*"
 
 [requires]
 python_version = "3.12"
 python_full_version = "3.12.1"
 
 [scripts]
-dev = "uvicorn main:app --reload --host 0.0.0.0 --port 8000"
-start = "uvicorn main:app --host 0.0.0.0 --port 8000"
+dev = "uvicorn src.main:app --reload --host 0.0.0.0 --port 8000"
+start = "uvicorn src.main:app --host 0.0.0.0 --port 8000"

@@ -89,6 +89,10 @@ the latest version of the API
 
 As part of deploying the service, we create a docker image and push it to [DockerHub](https://hub.docker.com/r/devds3/leaderboard)
 
+The image can be built either locally or via the recommended method of using
+[Github Actions](https://github.com/theDS3/Datathon-Leaderboard/actions/workflows/build.yml).
+To build it manually, follow the below steps:
+
 1. Create a `requirements.txt` which describes the specific packages used
 
     ```bash
@@ -98,9 +102,97 @@ As part of deploying the service, we create a docker image and push it to [Docke
 2. Create the Docker Image, provided a specific tag using SemVer.
 
     ```bash
-    docker build -t devds3/leaderboard:{MAJOR.MINOR.PATCH} .
+    docker build -t devds3/leaderboard:$(git rev-parse HEAD) .
     ```
 
 3. Test the Image
 
 4. Push Image to DockerHub and remove `requirements.txt`
+
+## Update Non-Public Leaderboard
+
+To push `private` and `final` standings, you will be making use the
+[leaderboard.py](https://github.com/theDS3/Datathon-Leaderboard/tree/main/src/leaderboard.py).
+Read the below subsections for requirements.
+
+```bash
+usage: leaderboard.py [-h] [-p] type
+
+Create Private & Final Leaderboard Entry
+
+positional arguments:
+  type           Leaderboard Entry Type
+
+options:
+  -h, --help     show this help message and exit
+  -p, --publish  Publish the latest standing
+
+Update Datathon Leaderboard
+```
+
+### For Private Leaderboard
+
+#### Folder Structure
+
+```txt
+data
+├── private
+│   ├── *.csv
+```
+
+#### Steps
+
+1. Create a folder called `private` inside folder `data` to contain multiple CSV
+2. Download from Kaggle the Private Leaderboard CSV's and place it here
+3. Each of these CSV require the following headers: `Rank,TeamId,TeamName,LastSubmissionDate,Score,SubmissionCount,TeamMemberUserNames`
+4. To view the latest standings:
+
+    ```bash
+    python src/leaderboard.py private
+    ```
+
+5. To publish the latest standings:
+
+    ```bash
+    python src/leaderboard.py private --publish
+    ```
+
+### For Final Leaderboard
+
+#### Folder Structure
+
+```txt
+data
+├── final
+│   ├── mapping.csv
+│   ├── bonus
+│   │   ├── *.csv
+├── private
+│   ├── *.csv
+```
+
+#### Steps
+
+1. Create a folder called `private` inside folder `data` to contain multiple CSV
+2. Download from Kaggle the Private Leaderboard CSV's and place it here
+3. Each of these CSV require the following headers: `Rank,TeamId,TeamName,LastSubmissionDate,Score,SubmissionCount,TeamMemberUserNames`
+4. Create a folder called `bonus` inside folder `data/final` to contain multiple
+CSV
+5. Load each CSV containing the attendance of participants at in-person events
+6. Each of these CSV require the following headers: `Email`
+7. Create a file called `mapping.csv` with the following headers:
+`Email,Team,Team Size`
+
+    - It is a mapping that contains all participants and the teams they belong to
+
+8. To view the latest standings:
+
+    ```bash
+    python src/leaderboard.py final
+    ```
+
+9. To publish the latest standings:
+
+    ```bash
+    python src/leaderboard.py final --publish
+    ```

@@ -160,6 +160,5 @@ cython_debug/
 #.idea/
 
 # Project Related
-/zip
-/csv
+/data
 requirements.txt

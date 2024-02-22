@@ -5,12 +5,20 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Leaderboard Debugger",
+            "name": "leaderboard.py Debugger",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "src/leaderboard.py",
+            "console": "integratedTerminal",
+            "args": "${command:pickArgs}"
+        },
+        {
+            "name": "Public Leaderboard Debugger",
             "type": "debugpy",
             "request": "launch",
             "module": "uvicorn",
             "args": [
-                "main:app",
+                "src.main:app",
                 "--reload",
                 "--host",
                 "0.0.0.0",
