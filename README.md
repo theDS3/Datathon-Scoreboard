@@ -12,7 +12,7 @@ Creates a server to update DS3 Datathon Leaderboard using Kaggle Leaderboard
       Read [below](#custom-kaggle-api)
 
     ```bash
-    pipenv install
+    pipenv install --dev
     ```
 
 2. Copy the `.env.example` to `.env`:
@@ -33,12 +33,14 @@ Creates a server to update DS3 Datathon Leaderboard using Kaggle Leaderboard
 
 All commands are run from the root of the project, from a terminal:
 
-| Command              | Action                                         |
-| -------------------- | ---------------------------------------------- |
-| `pipenv install`     | Installs packages to virtual environment       |
-| `pipenv run dev`     | Starts local dev server at `0.0.0.0:8000`      |
-| `pipenv run start`   | Creates a production server at `0.0.0.0:8000`  |
+| Command                | Action                                        |
+| ---------------------- | ----------------------------------------------|
+| `pipenv install`       | Installs default packages                     |
+| `pipenv install --dev` | Installs develop and default packages         |
+| `pipenv run dev`       | Starts local dev server at `0.0.0.0:8000`     |
+| `pipenv run start`     | Creates a production server at `0.0.0.0:8000` |
 
 Check the [`pipenv`](https://pipenv.pypa.io/en/latest/cli.html) docs for more commands
 
-Checkout the [Wiki](https://github.com/theDS3/Datathon-Leaderboard/wiki) for details about build images and other topics
+Checkout the [Wiki](https://github.com/theDS3/Datathon-Leaderboard/wiki) for
+details about build images and other topics

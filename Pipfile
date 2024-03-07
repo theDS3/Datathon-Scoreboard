@@ -12,6 +12,7 @@ pymongo = "*"
 
 [dev-packages]
 tabulate = "*"
+pyarrow = "*"
 
 [requires]
 python_version = "3.12"

@@ -10,8 +10,8 @@ from fastapi import FastAPI, status, HTTPException
 from pydantic import BaseModel
 
 from src.shared import (
-    ROOT_PATH,
-    MAX_TEAMS,
+    ROOT_FOLDER_PATH,
+    MAX_NUM_OF_TEAMS,
     get_abs_file_paths,
     process_csv,
     process_competitions,
@@ -20,12 +20,12 @@ from src.shared import (
 
 class Request(BaseModel):
     competitions: list[str]
-    numOfTeams: int = MAX_TEAMS
+    numOfTeams: int = MAX_NUM_OF_TEAMS
 
 
 app = FastAPI()
 
-PUBLIC_PATH = f"{ROOT_PATH}/public"
+PUBLIC_PATH = f"{ROOT_FOLDER_PATH}/public"
 
 def download_competitions(competitions: list[str]) -> list[str]:
     """Downloads and Extracts leaderboard information from multiple competitions

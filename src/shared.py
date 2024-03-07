@@ -1,11 +1,11 @@
-from typing import TypedDict, NotRequired, Literal, Dict
+from typing import TypedDict, NotRequired, Literal
 from pymongo.collection import Collection
 
 from datetime import datetime
 from pytz import timezone
+from pandas import DataFrame, read_csv, merge
 
 import os
-import pandas as pd
 
 type LeaderboardType = Literal["public", "private", "final"]
 
@@ -20,9 +20,13 @@ class LeaderboardEntry(TypedDict):
 
 
 # Maximum number of teams to be displayed
-MAX_TEAMS = 40
+MAX_NUM_OF_TEAMS = 40
 
-ROOT_PATH = "data"
+# Maximum decimal places for rounding
+DECIMALS = 5
+
+# Root Folder
+ROOT_FOLDER_PATH = "data"
 
 
 def get_abs_file_paths(
@@ -62,7 +66,7 @@ def get_abs_file_paths(
     return files if not is_sorted else sorted(files)
 
 
-def process_csv(csv_file_paths: list[str]) -> pd.DataFrame:
+def process_csv(csv_file_paths: list[str]) -> DataFrame:
     """Extract leaderboard information from *.csv
 
     Args:
@@ -72,13 +76,13 @@ def process_csv(csv_file_paths: list[str]) -> pd.DataFrame:
         ValueError: `InvalidFile`
 
     Returns:
-        pd.DataFrame: Kaggle API Data with Scores and Counts for each Team from all competitions
+        DataFrame: Kaggle API Data with Scores and Counts for each Team from all competitions
     """
 
-    df = pd.DataFrame()
+    df = DataFrame()
     for csv_file_path in csv_file_paths:
         # Read the CSV files and filter specific columns
-        df_comp = pd.read_csv(csv_file_path).filter(
+        df_comp = read_csv(csv_file_path).filter(
             ["TeamName", "Score", "SubmissionCount"]
         )
 
@@ -95,24 +99,24 @@ def process_csv(csv_file_paths: list[str]) -> pd.DataFrame:
         ]
 
         # Join the multiple csv from
-        df = df_comp if df.empty else pd.merge(df, df_comp, on=["name"], how="outer")
+        df = df_comp if df.empty else merge(df, df_comp, on=["name"], how="outer")
 
     return df
 
 
 def process_competitions(
-    df: pd.DataFrame,
+    df: DataFrame,
     leaderboard_type: LeaderboardType,
     coll: Collection,
-    size=MAX_TEAMS,
+    size=MAX_NUM_OF_TEAMS,
 ) -> list[LeaderboardEntry]:
     """Process the leaderboard data from multiple competitions
 
     Args:
-        df (pd.DataFrame): Kaggle API Data with Scores and Counts for each Team from all competitions.
+        df (DataFrame): Kaggle API Data with Scores and Counts for each Team from all competitions.
         leaderboard_type (LeaderboardType): Specific mode of calculations
         coll (Collection):  Collection that contains the leaderboard snapshots.
-        size (int, optional): Limits number of teams. Defaults to `MAX_TEAMS`.
+        size (int, optional): Limits number of teams. Defaults to `MAX_NUM_OF_TEAMS`.
 
     Raises:
         ValueError: `InvalidCollection`
@@ -166,14 +170,14 @@ def process_competitions(
         df["bonus"] = 1.0
         df.set_index("name", inplace=True)
 
-        MAPPING_CSV = f"{ROOT_PATH}/final/mapping.csv"
-        BONUS_PATH = f"{ROOT_PATH}/final/bonus"
+        MAPPING_CSV = f"{ROOT_FOLDER_PATH}/final/mapping.csv"
+        BONUS_PATH = f"{ROOT_FOLDER_PATH}/final/bonus"
 
         if not os.path.isfile(MAPPING_CSV):
             raise ValueError(f"FileDoesNotExist: {MAPPING_CSV}")
 
         # Get mapping
-        df_mapping = pd.read_csv(MAPPING_CSV)
+        df_mapping = read_csv(MAPPING_CSV)
 
         # Get a list of all CSV files in the folder
         csv_files = get_abs_file_paths(BONUS_PATH, ".csv")
@@ -185,10 +189,10 @@ def process_competitions(
         for csv_file in csv_files:
 
             # Load the CSV file into a dataframe
-            df_attendance = pd.read_csv(csv_file)
+            df_attendance = read_csv(csv_file)
 
             # Subsetting attendance
-            merged_df = pd.merge(df_mapping, df_attendance, on="Email", how="inner")
+            merged_df = merge(df_mapping, df_attendance, on="Email", how="inner")
 
             # Populating with 1's
             merged_df["Attendance"] = 1
@@ -221,9 +225,9 @@ def process_competitions(
         df.reset_index(inplace=True, drop=False)
 
         # round
-        df["bonus"] = df["bonus"].astype(float).round(5)
-        df["score"] = df["score"].astype(float).round(5)
-        df["finalScore"] = df["finalScore"].astype(float).round(5)
+        df["bonus"] = df["bonus"].astype(float).round(DECIMALS)
+        df["score"] = df["score"].astype(float).round(DECIMALS)
+        df["finalScore"] = df["finalScore"].astype(float).round(DECIMALS)
 
         compare_leaderboard_type = "private"
         curr_standings = df[:size][
@@ -236,7 +240,7 @@ def process_competitions(
         df.reset_index(inplace=True, drop=True)
 
         # round
-        df["score"] = df["score"].astype(float).round(5)
+        df["score"] = df["score"].astype(float).round(DECIMALS)
 
         curr_standings = df[:size][["name", "score", "attempts"]].to_dict("records")
 
