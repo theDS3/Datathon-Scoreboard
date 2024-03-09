@@ -278,12 +278,14 @@ def process_competitions(
 
 
 def update_leaderboard(
-    data: list[LeaderboardEntry], leaderboard_type: LeaderboardType, coll: Collection
+    standings: list[LeaderboardEntry],
+    leaderboard_type: LeaderboardType,
+    coll: Collection,
 ):
     """Insert new document into `leaderboard` collection
 
     Args:
-        data (list[LeaderboardEntry]): New document to be added to the collection
+        standings (list[LeaderboardEntry]): New document to be added to the collection
         leaderboard_type (LeaderboardType): Specific type of document for a specific leaderboard
         coll (Collection):  Collection that contains the leaderboard snapshots.
 
@@ -304,6 +306,6 @@ def update_leaderboard(
             "timestamp": datetime.now(timezone("Canada/Eastern")).strftime(
                 "%b %d %Y %I:%M:%S %p"
             ),
-            "data": data,
+            "standings": standings,
         }
     )
